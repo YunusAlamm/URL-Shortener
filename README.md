@@ -8,7 +8,7 @@ a project that takes a normal URL from the input and  returns the shortened form
 **.** copy your URL in the input and the program returns the shortened form of your link.
 # How it Works?
 when you copy your URL in the input, the program first does a small search in the database to ensure that your URL is not already saved
-in DB<br> after that by calling the ShortenedGenerator, generate the shortened form and in the end, Redirects the shortened url to original<br>
+in DB.<br> after that by calling the ShortenedGenerator, generate the shortened form and in the end, Redirects the shortened url to original
 then returns it to the output. 
 # Project Technologies
 . Asp.Net Core 8<br>
