@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Controllers.UrlController
 {
+    
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class UrlController : ControllerBase
     {
         private readonly UrlContext _context;
@@ -16,28 +17,58 @@ namespace Controllers.UrlController
         }
 
         [HttpPost]
-        public IActionResult Create(string OriginalUrl)
+        public async  Task<IActionResult> Create(string OriginalUrl)
         {
-            Url url = new Url();
-            url.OriginalUrl = OriginalUrl;
-            url.ShortenedUrl = ShortUrlGenerator(OriginalUrl);
-
-            foreach (var item in _context.Urls)     // checks that if the Original Url already exists in db, prevent to save it again.
+            var q = await _context.Urls.FirstOrDefaultAsync(i => i.OriginalUrl == OriginalUrl);
+            if (q == null)
             {
-                if (item.OriginalUrl == OriginalUrl)
-                return Redirect(url.ShortenedUrl);
-            }
+                Url url = new Url();
+            url.OriginalUrl = OriginalUrl;
+            url.ShortenedUrl = ShortUrlGenerator(url.OriginalUrl);
+
+           
             _context.Add(url);
-            _context.SaveChanges();
-            return Redirect(url.ShortenedUrl);
+           await _context.SaveChangesAsync();
+            
+            return  Ok("your generated ShortLink: " + RedirectAddress(url.ShortenedUrl));
+            }
+            return Ok("The URL already exists, the ShortLink is: "+ RedirectAddress(q.ShortenedUrl));
+            
+
+            
 
         }
 
 
+    
+
+    
+    
+    [HttpGet]
+    public List<Url> ShowAll(){
+        return _context.Urls.ToList();
+    }
+
+    [HttpDelete]
+    public  ActionResult Delete(){
+        _context.Database.ExecuteSqlRaw("TRUNCATE TABLE Urls");
+        
+        return Ok("DataBase Cleared!");
+    }
+
+    [HttpGet("/s/{ShortenedUrl}")]
+    public async Task<IActionResult> RedirectAddress(string ShortenedUrl){
+
+        var q = await _context.Urls.FirstOrDefaultAsync(s => s.ShortenedUrl == ShortenedUrl);
+
+        
+
+        return Redirect(q.ShortenedUrl);
+    }
 
 
 
-        public string ShortUrlGenerator(string OriginalUrl)
+        private string ShortUrlGenerator(string OriginalUrl)
         {
             var urlHash = OriginalUrl.GetHashCode();
             return Convert.ToBase64String(BitConverter.GetBytes(urlHash)).Replace("=","").Replace("+","").Replace("/","");
