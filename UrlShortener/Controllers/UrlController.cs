@@ -57,7 +57,7 @@ namespace Controllers.UrlController
     }
 
     [HttpGet("/s/{ShortenedUrl}")]
-    public async Task<IActionResult> RedirectAddress(string ShortenedUrl){
+    private async Task<IActionResult> RedirectAddress(string ShortenedUrl){
 
         var q = await _context.Urls.FirstOrDefaultAsync(s => s.ShortenedUrl == ShortenedUrl);
 
