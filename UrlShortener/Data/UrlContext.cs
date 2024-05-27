@@ -9,7 +9,7 @@ namespace UrlShortener.Data
         {}
 
         public DbSet<User> Users { get;set; }
-        public DbSet<Url> Urls { get;}
+        public DbSet<Url> Urls { get;set;}
     }
 
 }
