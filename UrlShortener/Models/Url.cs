@@ -8,7 +8,7 @@ namespace UrlShortener.Models
         public string ShortenedUrl { get; set; } =string.Empty;
         public string Alias { get; set; } =string.Empty;
         public int Counter { get; set; } = 0;
-        public User User { get; set; }
+        public User User { get; set; } = new User();
     }
 
 }
