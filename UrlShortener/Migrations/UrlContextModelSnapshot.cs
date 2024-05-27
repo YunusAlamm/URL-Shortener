@@ -44,8 +44,8 @@ namespace UrlShortener.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -56,8 +56,11 @@ namespace UrlShortener.Migrations
 
             modelBuilder.Entity("UrlShortener.Models.User", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Salt")
                         .IsRequired()
@@ -71,16 +74,20 @@ namespace UrlShortener.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("UrlShortener.Models.Url", b =>
                 {
-                    b.HasOne("UrlShortener.Models.User", null)
+                    b.HasOne("UrlShortener.Models.User", "User")
                         .WithMany("Urls")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UrlShortener.Models.User", b =>
