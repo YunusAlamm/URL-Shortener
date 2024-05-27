@@ -7,10 +7,10 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
+using Microsoft.AspNetCore.Identity;
 
 namespace Controllers.UrlController
 {
@@ -34,10 +34,13 @@ namespace Controllers.UrlController
             if ( UserName == null || UserPassword == null)
                 return BadRequest("Fill the Name & password to sign-up");
             
-
+            if( await _context.Users.AnyAsync(u => u.UserName == UserName))
+                return Ok("User already exists, please sign-in");
+           
+           
             User user = new User();
             var salt = GenerateSalt();
-            var hashedPassword = HashPasswordWithSalt(UserPassword, salt);
+            var hashedPassword = HashPasswordWithSalt(UserPassword, Encoding.UTF8.GetBytes(Convert.ToBase64String(salt)));
             user.UserPassword = Convert.ToBase64String(hashedPassword);
             user.Salt = Convert.ToBase64String(salt);
             user.UserName = UserName;
@@ -58,8 +61,9 @@ namespace Controllers.UrlController
             if (user == null)
                 return BadRequest("User Not found!");
             
-            var ConfirmSubject = HashPasswordWithSalt(UserPassword,Encoding.UTF8.GetBytes(user.Salt));
-            var flag =  Convert.ToBase64String(ConfirmSubject);
+            var ConfirmPassword = HashPasswordWithSalt(UserPassword,Encoding.UTF8.GetBytes(user.Salt));
+            
+            var flag =  Convert.ToBase64String(ConfirmPassword);
             if (user.UserPassword ==flag)
             {
                 var token = GenerateJwtToken(user);
@@ -67,7 +71,7 @@ namespace Controllers.UrlController
                 return Ok(new{Token = token});
             }
 
-            return Unauthorized("ok nistim");
+            return Unauthorized("Wrong Password!");
 
         }
        
@@ -77,27 +81,35 @@ namespace Controllers.UrlController
 
         [HttpPost("Create")]
         [Authorize]
-        public async  Task<IActionResult> Create(string OriginalUrl)
+        public async  Task<IActionResult> Create(string OriginalUrl,string Alias)
         {
-            var q = await _context.Urls.FirstOrDefaultAsync(i => i.OriginalUrl == OriginalUrl);
-            if (q == null)
+           
+
+            
+            var q = await _context.Urls.AnyAsync(x => x.OriginalUrl == OriginalUrl);
+            if (!q )
             {
                 Url url = new Url();
-            url.OriginalUrl = OriginalUrl;
-            url.ShortenedUrl = ShortUrlGenerator(url.OriginalUrl);
+                url.OriginalUrl = OriginalUrl;
+                url.ShortenedUrl = ShortUrlGenerator(url.OriginalUrl);
+                url.Alias = Alias;
+
+                
+
+                int id =Convert.ToInt32( HttpContext.User.FindFirstValue("Id"));
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
 
 
-           var userName = User.Identity.Name;
-           var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
-           user.Urls.Add(url);
-           url.User = user;
+                user.Urls.Add(url);
+                url.User = user;
 
-            _context.Add(url);
-           await _context.SaveChangesAsync();
+                 _context.Urls.Add(url);
+                await _context.SaveChangesAsync();
             
-            return  Ok("your generated ShortLink: " + RedirectAddress(url.ShortenedUrl));
-            }
-            return Ok("The URL already exists, the ShortLink is: "+ RedirectAddress(q.ShortenedUrl));
+                 return  Ok("your generated ShortLink: " + RedirectAddress(url.ShortenedUrl));
+           }
+        var existUrl =  _context.Urls.FirstOrDefault(x => x.OriginalUrl == OriginalUrl);
+         return Ok("The URL already exists, the ShortLink is: "+ RedirectAddress(existUrl.ShortenedUrl));
             
 
             
@@ -109,26 +121,45 @@ namespace Controllers.UrlController
 
     
     
-    [HttpGet]
+    [HttpGet("ShowMyUrls")]
     [Authorize]
-    public async Task<IActionResult> ShowAll(){
+    public async Task<IActionResult> ShowMyUrls(){
 
-        var userName = User.Identity.Name;
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName ==userName);
+        int id =Convert.ToInt32( HttpContext.User.FindFirstValue("Id"));
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
 
-        return (IActionResult)user.Urls.ToList();
+        var MyUrls =  _context.Urls.Where(x => x.User.Id == id).Select(u => new{u.OriginalUrl,u.ShortenedUrl,u.Alias});
+        return Ok(MyUrls);
        
 
         
     }
 
-    [HttpDelete]
-    [Authorize]
-    public  ActionResult Delete(){
-        _context.Database.ExecuteSqlRaw("TRUNCATE TABLE Urls");
-        
-        return Ok("DataBase Cleared!");
+
+
+[HttpDelete("Delete")]
+[Authorize]
+public async Task<ActionResult> Delete(int id)
+{
+
+    int Id =Convert.ToInt32( HttpContext.User.FindFirstValue("Id"));
+    var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == Id);
+                
+   
+
+    var url = await _context.Urls.FindAsync(id);
+    if (url == null)
+    {
+        return NotFound();
     }
+
+    user.Urls.Remove(url);
+   
+    await _context.SaveChangesAsync();
+
+    return Ok("URL Deleted!");
+}
+
 
     [HttpGet("{RedirectAddress}")]
     [Authorize]
@@ -175,11 +206,11 @@ namespace Controllers.UrlController
     {
         Subject = new ClaimsIdentity(new[]
         {
-            new Claim("Id", user.UserId),
+            new Claim("Id", Convert.ToString(user.Id)),
             new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         }),
-        Expires = DateTime.UtcNow.AddMinutes(5),
+        Expires = DateTime.UtcNow.AddMinutes(30),
         Issuer = _jwtSettings.Issuer,
         Audience = _jwtSettings.Audience,
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
