@@ -1,22 +1,82 @@
-# Building an URL Shortener Web API using Asp.Net Core 8
+# URL Shortener
 
-a project that takes a normal URL from the input and  returns the shortened form of that link.
-# How to Use?
-**.** first download the project and open it with vscode or any ide.<br>
-**.** build the project and it will open a swager page in your default browser.<br>
-**.** Try out the Post api for creating a new shortened link.<br>
-**.** copy your URL in the input and the program returns the shortened form of your link.
-# How it Works?
-when you copy your URL in the input, the program first does a small search in the database to ensure that your URL is not already saved
-in DB.<br> after that by calling the ShortenedGenerator, generate the shortened form and in the end, Redirects the shortened url to original
-then returns it to the output. 
-# Project Technologies
-. Asp.Net Core 8<br>
-. MVC Structure<br>
-. Sql local database file<br>
-. Database Migrations
+URL shortener project in C# to create, manage, and track short links.
 
-# Additional Notes
-for database i used a sql server db local file which is easy to make.<br>
- just open the SSMS, Create an empty database then Detach the database file and put it in the root directory of your project.<br>
-for connecting a database local file to your program and configure your connection string should do some search in the internet.
+## Table of Contents
+
+- [URL Shortener](#url-shortener)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Swagger](#swagger)
+  - [Configuration](#configuration)
+  - [Dependencies](#dependencies)
+
+## Introduction
+
+This URL shortener project is built in C# and provides a simple and efficient way to create, manage, and track short links. It is designed to help you quickly convert long URLs into short, manageable links that are easy to share and track.
+
+## Features
+
+- Create short URLs from long links
+- Manage and edit existing short URLs
+- Track link clicks and analytics
+- User-friendly web interface
+
+## Installation
+
+1. Clone the repository:
+```
+git clone https://github.com/YunusAlamm/URL-Shortener.git
+```
+
+2. Navigate to the project directory:
+```
+cd url-shortener
+```
+
+3. Install dependencies:
+```
+dotnet restore
+```
+
+4. Build the project:
+```
+dotnet build
+```
+
+## Usage
+
+Run the project:
+```
+dotnet run
+```
+
+Open your web browser and navigate to http://localhost:5000 to access the URL shortener web interface.
+Use the interface to create, manage, and track short URLs.
+
+### Swagger
+you can see api document on http://localhost:5273
+
+## Configuration
+
+To customize the URL shortener, you can modify the configuration settings in the appsettings.json file.
+
+```
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "YourDatabaseConnectionString"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning"
+    }
+  }
+}
+```
+
+## Dependencies 
+- [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0)
