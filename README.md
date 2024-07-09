@@ -16,14 +16,14 @@ URL shortener project in C# to create, manage, and track short links.
 
 ## Introduction
 
-This URL shortener project is built in C# and provides a simple and efficient way to create, manage, and track short links. It is designed to help you quickly convert long URLs into short, manageable links that are easy to share and track.
+This URL shortener project is built in C# and provides a simple and efficient way to create and track short links. It is designed to help you quickly convert long URLs into short links that are easy to share and track.
 
 ## Features
 
 - Create short URLs from long links
-- Manage and edit existing short URLs
+
 - Track link clicks and analytics
-- User-friendly web interface
+
 
 ## Installation
 
@@ -53,12 +53,18 @@ Run the project:
 ```
 dotnet run
 ```
+ShutDown the project:
+```
+Ctrl+C (in the terminal)
+```
 
-Open your web browser and navigate to http://localhost:5000 to access the URL shortener web interface.
+Open your web browser and navigate to http://localhost:5273/swagger/index.html to access the URL shortener web interface.
 Use the interface to create, manage, and track short URLs.
 
+
+
 ### Swagger
-you can see api document on http://localhost:5273
+you can see api document on http://localhost:5273/swagger/v1/swagger.json
 
 ## Configuration
 
@@ -66,17 +72,37 @@ To customize the URL shortener, you can modify the configuration settings in the
 
 ```
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "YourDatabaseConnectionString"
-  },
+  
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Warning"
     }
-  }
+  },
+
+  "AllowedHosts": "*",
+
+  "ConnectionStrings": {
+    "DefaultConnection": "YourDatabaseConnectionString"
+  },
+
+    "Jwt": {
+    "Issuer": "http://localhost",
+    "Audience": "http://localhost",
+    "Key": "Rm9yIGEgNTEyLWJpdCBrZXksIHlvdSBjYW4gdXNlIHRoaXMgZXhhbXBsZTogUW5Kb2FqZkFqZGxha0pkZmFsa2pkZmFsa2pkZmFsa2pkZmFsa2pkZmFsa2pkZmFsa2pkZmFsa2pkZmFsa2pkZmF"
+}
+
 }
 ```
 
 ## Dependencies 
-- [ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0)
+## Project Dependencies
+
+- **Microsoft.AspNetCore.Authentication.JwtBearer**: Version 8.0.5
+- **Microsoft.AspNetCore.OpenApi**: Version 8.0.4
+- **Microsoft.EntityFrameworkCore**: Version 8.0.4
+- **Microsoft.EntityFrameworkCore.Tools**: Version 8.0.4
+- **Npgsql**: Version 8.0.3
+- **Npgsql.EntityFrameworkCore.PostgreSQL**: Version 8.0.4
+- **Swashbuckle.AspNetCore**: Version 6.4.0
+- **System.IdentityModel.Tokens.Jwt**: Version 7.5.2
