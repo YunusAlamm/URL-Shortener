@@ -28,7 +28,7 @@ namespace Controllers.UrlController
         }
 
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register(string UserName,string UserPassword)
         {
             if ( UserName == null || UserPassword == null)
@@ -54,7 +54,7 @@ namespace Controllers.UrlController
 
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(String UserName, String UserPassword)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == UserName);
@@ -79,7 +79,7 @@ namespace Controllers.UrlController
 
 
 
-        [HttpPost("Create")]
+        [HttpPost("create")]
         [Authorize]
         public async  Task<IActionResult> Create(string OriginalUrl,string Alias)
         {
@@ -121,7 +121,7 @@ namespace Controllers.UrlController
 
     
     
-    [HttpGet("ShowMyUrls")]
+    [HttpGet("showMyUrls")]
     [Authorize]
     public async Task<IActionResult> ShowMyUrls(){
 
@@ -137,7 +137,7 @@ namespace Controllers.UrlController
 
 
 
-[HttpDelete("Delete")]
+[HttpDelete("delete")]
 [Authorize]
 public async Task<ActionResult> Delete(int id)
 {
@@ -161,7 +161,7 @@ public async Task<ActionResult> Delete(int id)
 }
 
 
-    [HttpGet("{RedirectAddress}")]
+    [HttpGet("{redirectAddress}")]
     [Authorize]
     public async Task<IActionResult> RedirectAddress(string ShortenedUrl){
 
